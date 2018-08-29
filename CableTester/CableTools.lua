@@ -68,3 +68,7 @@ function get_input(out_pin, in_pin, side)
 	end
 	return 0
 end
+
+function get_pin_count()
+	return #Cable // 2
+end

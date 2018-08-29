@@ -16,5 +16,8 @@ side：A端或B端
 */
 int get_input_lua(int out_pin, int in_pin, int side);
 
+// 获取针脚数量
+int get_pin_count_lua();
+
 #endif // !INTERACTWITHLUA_H
 

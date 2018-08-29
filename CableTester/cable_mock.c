@@ -34,3 +34,20 @@ int get_input_lua(int out_pin, int in_pin, int side)
 	lua_close(L);
 	return result;
 }
+
+int get_pin_count_lua()
+{
+	char *filename = "CableTools.lua";
+	lua_State *L = load_lua_file(filename);
+	if (L == NULL)
+		return -1;
+	lua_getglobal(L, "get_pin_count");
+	if (lua_pcall(L, 0, 1, 0) != 0)
+	{
+		printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
+		return -1;
+	}
+	int result = lua_tointeger(L, -1);
+	lua_close(L);
+	return result;
+}
