@@ -1,4 +1,4 @@
-#include "interact_with_lua.h"
+#include "cable_mock.h"
 
 lua_State * load_lua_file(char * filename)
 {
@@ -17,9 +17,10 @@ int get_input_lua(int out_pin, int in_pin, int side)
 	lua_State *L = load_lua_file(filename);
 	if (L == NULL)
 		return -1;
-	lua_getglobal(L, "get_input");
-	lua_pushinteger(L, out_pin);
-	lua_pushinteger(L, in_pin);
+	lua_getglobal(L, "get_input"); // 获取CableTools中的get_input函数
+	lua_pushinteger(L, out_pin); // 置入输出针脚序号
+	lua_pushinteger(L, in_pin); // 置入输入针脚下标
+	// 置入端标志
 	if (side == 0)
 		lua_pushstring(L, "A");
 	else if (side == 1)

@@ -27,10 +27,10 @@
     <ClInclude Include="pin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="interact_with_lua.h">
+    <ClInclude Include="cable_mock.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="functions.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClCompile Include="main.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="interact_with_lua.c">
+    <ClCompile Include="cable_mock.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

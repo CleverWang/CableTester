@@ -12,7 +12,9 @@
 
 void test_pin_traversal()
 {
-	CURRENT_SIDE = SIDE_B;
+	CURRENT_SIDE = SIDE_A; // 设置当前遍历端
+
+	// 待测针脚集合
 	list *T = (list *)malloc(sizeof(list));
 	if (T == NULL)
 		printf_s("no memory!");
@@ -24,18 +26,22 @@ void test_pin_traversal()
 		list_push_back(T, &pins[i]);
 	}
 
+	// 连通针脚集合
 	list *C = (list *)malloc(sizeof(list));
 	if (C == NULL)
 		printf_s("no memory!");
 	list_init(C);
 
+	// 未连通针脚集合
 	list *U = (list *)malloc(sizeof(list));
 	if (U == NULL)
 		printf_s("no memory!");
 	list_init(U);
 
+	// 针脚遍历
 	pin_traversal(T, C, U);
 
+	// 打印结果
 	printf_s("T: ");
 	for (list_node *node = T->head; node != NULL; node = node->next)
 	{
@@ -44,19 +50,33 @@ void test_pin_traversal()
 	printf_s("\n\nC: { ");
 	for (list_node *node = C->head; node != NULL; node = node->next)
 	{
-		printf_s("{ ");
+		printf_s("{");
 		list *conn = (list *)node->data;
 		for (list_node *nd = conn->head; nd != NULL; nd = nd->next)
 		{
-			printf_s("%d ", ((pin *)nd->data)->number);
+			printf_s("%d,", ((pin *)nd->data)->number);
 		}
-		printf_s(" }");
+		printf_s("},");
 	}
 	printf_s(" } \n\nU: ");
 	for (list_node *node = U->head; node != NULL; node = node->next)
 	{
 		printf_s("%d ", ((pin *)node->data)->number);
 	}
+
+	// 回收内存
+	list_destroy(T);
+	for (list_node *node = C->head; node != NULL; node = node->next)
+	{
+		list *conn = (list *)node->data;
+		list_destroy(conn);
+		free(conn);
+	} // C是集合的集合，需要先回收集合内的集合
+	list_destroy(C);
+	list_destroy(U);
+	free(T);
+	free(C);
+	free(U);
 }
 
 int main(int argc, char **argv)
