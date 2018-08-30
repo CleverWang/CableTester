@@ -10,9 +10,6 @@
 #include "cable_mock.h"
 #include "functions.h"
 
-// 线缆单侧最大针脚数，+1为了使针脚下标从1开始
-//const int MAX_PIN_CNT = 128 + 1;
-
 // 线缆两端标识
 enum side { SIDE_A = 0, SIDE_B = 1 };
 

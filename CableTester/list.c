@@ -25,7 +25,7 @@ int list_push_front(list * l, void * data)
 		return -1;
 	node->data = data;
 	node->next = NULL;
-	if (list_empty(l))
+	if (list_empty(l)) // 为空单独处理
 		l->head = node;
 	else
 	{
@@ -43,10 +43,11 @@ int list_push_back(list *l, void *data)
 		return -1;
 	node->data = data;
 	node->next = NULL;
-	if (list_empty(l))
+	if (list_empty(l)) // 为空单独处理
 		l->head = node;
 	else
 	{
+		// 插入到末尾
 		list_node *n = l->head;
 		while (n->next != NULL)
 		{
@@ -106,7 +107,7 @@ int list_erase(list * l, list_node * node)
 		return 1;
 	if (list_empty(l))
 		return 1;
-	if (node == l->head)
+	if (node == l->head)  // 为头节点单独处理
 	{
 		list_node *temp = l->head;
 		l->head = temp->next;

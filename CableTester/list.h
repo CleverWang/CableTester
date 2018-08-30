@@ -33,17 +33,17 @@ int list_push_back(list *l, void *data);
 // 在链表中查找指定数据，返回节点指针
 list_node* list_find(list *l, void *data, int(*equal)(const void *, const void *));
 
-// 销毁链表中的所有list_node，恢复list初始状态，list需要手动释放
-void list_destroy(list *l);
-
-// 销毁链表的链表
-void list_list_destroy(list *ll);
-
 // 移除链表中的指定节点
 int list_erase(list *l, list_node *node);
 
 // 获取链表中指定位置的数据
 void *list_at(list *l, int idx);
+
+// 销毁链表中的所有list_node，恢复list初始状态，list需要手动释放
+void list_destroy(list *l);
+
+// 销毁链表的链表
+void list_list_destroy(list *ll);
 
 #endif // !LIST_H
 

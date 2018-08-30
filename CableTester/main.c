@@ -98,6 +98,7 @@ void test_pin_traversal()
 	//free(U);
 }
 
+// 打印链表
 void print_list(char *msg, list *l)
 {
 	printf_s("%s: ", msg);
@@ -108,6 +109,7 @@ void print_list(char *msg, list *l)
 	printf_s("\n");
 }
 
+// 打印链表的链表
 void print_list_list(char *msg, list *l)
 {
 	printf_s("%s: { ", msg);
@@ -124,24 +126,29 @@ void print_list_list(char *msg, list *l)
 	printf_s(" }\n");
 }
 
+// 用于list_find，比较数据相同性
 int equal(const void *data1, const void *data2)
 {
 	return ((pin *)data1)->number == ((pin *)data2)->number;
 }
 
-pin *PinsA, *PinsB;
+pin *PinsA, *PinsB; // A端和B端针脚
 
 list *TestA, *TestB;
 list *Short_A, *Short_B;
 list *RemoveA;
 list *Disconnect_A, *Disconnect_B;
 list *Interconnect;
-list *Temp;
+list *Temp; // 临时链表
 
+/*
+初始化各个链表，加载lua状态机，设置标志
+*/
 int init()
 {
 	printf_s("initializing...\n\n");
 
+	load_lua();
 	TestA = (list *)malloc(sizeof(list));
 	TestB = (list *)malloc(sizeof(list));
 	Short_A = (list *)malloc(sizeof(list));
@@ -170,6 +177,9 @@ int init()
 	return 0;
 }
 
+/*
+将A端所有针脚加入待测试针脚集合TestA，将B端所有针脚加入待测试针脚集合TestB
+*/
 int step1()
 {
 	printf_s("step 1:\n");
@@ -179,6 +189,7 @@ int step1()
 	PinsB = (pin *)malloc(sizeof(pin) * pin_cnt);
 	if (PinsA == NULL || PinsB == NULL)
 		return -1;
+	// 此处简单将针脚从1开始编号
 	for (int i = 0; i < pin_cnt; i++)
 	{
 		PinsA[i].number = i + 1;
@@ -193,6 +204,12 @@ int step1()
 	return 0;
 }
 
+/*
+断开电缆两端的所有连接。对TestA中的针脚进行遍历。
+将连通针脚集合C复制为A端短接针脚集合Short_A。
+从TestA中移除Short_A中每一组连通针脚集合里序号非最小的针脚（例如Short_A中记录了{1, 4, 6}针脚彼此连通，{2, 8}针脚彼此连通，
+则从TestA中移除4号、6号、8号针脚），并将这些针脚加入集合RemoveA
+*/
 int step2()
 {
 	printf_s("step 2:\n");
@@ -219,6 +236,11 @@ int step2()
 	return 0;
 }
 
+/*
+断开电缆两端的所有连接。对TestB中的针脚进行遍历。
+将连通针脚集合C复制为B端短接针脚集合Short_B。
+从TestB中移除Short_B中每一组连通针脚集合里序号非最小的针脚。
+*/
 int step3()
 {
 	printf_s("step 3:\n");
@@ -243,6 +265,10 @@ int step3()
 	return 0;
 }
 
+/*
+断开A端的所有连接，将B端所有针脚短接，对TestA中的针脚进行遍历。
+将未连通针脚集合U复制为A端未连接针脚集合Disconnect_A。从TestA中移除Disconnect_A中的所有针脚
+*/
 int step4()
 {
 	printf_s("step 4:\n");
@@ -250,7 +276,7 @@ int step4()
 	STEP = "DisA";
 	CURRENT_SIDE = SIDE_A;
 	pin_traversal(TestA, Temp, Disconnect_A);
-	list_destroy(Temp);
+	list_list_destroy(Temp);
 	for (list_node *node = Disconnect_A->head; node != NULL; node = node->next)
 	{
 		list_erase(TestA, list_find(TestA, node->data, equal));
@@ -262,6 +288,10 @@ int step4()
 	return 0;
 }
 
+/*
+断开B端的所有连接，将A端所有针脚短接，对TestB中的针脚进行遍历。
+将未连通针脚集合U复制为B端未连接针脚集合Disconnect_B。从TestB中移除Disconnect_B中的所有针脚
+*/
 int step5()
 {
 	printf_s("step 5:\n");
@@ -269,7 +299,7 @@ int step5()
 	STEP = "DisB";
 	CURRENT_SIDE = SIDE_B;
 	pin_traversal(TestB, Temp, Disconnect_B);
-	list_destroy(Temp);
+	list_list_destroy(Temp);
 	for (list_node *node = Disconnect_B->head; node != NULL; node = node->next)
 	{
 		list_erase(TestB, list_find(TestB, node->data, equal));
@@ -281,6 +311,11 @@ int step5()
 	return 0;
 }
 
+/*
+将标准短接插座上的所有跳线均接通，并连接到单片机。
+单片机将RemoveA中的针脚设置为输出（其他针脚设置为输入），并在这些针脚上输出高电平。
+对应针脚上的发光二极管燃亮。手动将这些针脚对应的跳线断开，使得发光二极管熄灭
+*/
 int step6()
 {
 	printf_s("step 6:\n");
@@ -302,6 +337,13 @@ int step6()
 	return 0;
 }
 
+/*
+将标准短接插座从单片机断开，并连接到电缆A端。将电缆B端TestB中的针脚连接到单片机。按下列步骤进行
+1) 令序号n=1；
+2) 将TestB[n]针脚设置为输出模式，其他针脚设置为输入模式。在TestB[n]针脚上持续输出方波，并在其他针脚上进行采集。将采集到方波的针脚数保存为Cnt[n]；
+3) 令n=n+1，重复步骤2)、3)，直到n>N（N=|TestA|=|TestB|）。
+上述步骤完成后，可判定B端TestB[n]针脚与A端TestA[Cnt[n]+1]针脚连通。将连通关系保存到Interconnect集合
+*/
 int step7()
 {
 	printf_s("step 7:\n");
@@ -350,6 +392,9 @@ int step7()
 	return 0;
 }
 
+/*
+单片机向上位机输出Short_A、Disconnect_A、Short_B、Disconnect_B、Interconnect
+*/
 int step8()
 {
 	printf_s("step 8:\n");
@@ -360,8 +405,12 @@ int step8()
 	print_list_list("Interconnect", Interconnect);
 }
 
+/*
+垃圾回收
+*/
 void gc()
 {
+	close_lua();
 	free(PinsA);
 	free(PinsB);
 	list_destroy(TestA);

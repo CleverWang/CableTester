@@ -49,6 +49,11 @@ require("Cable")
 	-- return res
 -- end
 
+-- out_pin: The pin at output mode. It outputs square wave.
+-- in_pin: The pin at input mode. It trys to receive square wave.
+-- side: The side identifier to indicate cable side. 'A' for side A, 'B' for side B.
+-- step: A identifier to indicate which step the program is running at. 'DisA", "DisB", "Inter" and nil are allowed.
+-- return: 1 means in_pin received the wave, or 0 for not.
 function get_input(out_pin, in_pin, side, step)
 	if in_pin > #Cable // 2 or in_pin < 1 or out_pin > #Cable // 2 or out_pin < 1 then
 		error("pin number out of range!")
@@ -127,7 +132,7 @@ function get_input(out_pin, in_pin, side, step)
 		end
 		return 0
 	end
-	
+	error('bad arguments')
 end
 
 function get_pin_count()
