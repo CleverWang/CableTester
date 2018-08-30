@@ -395,7 +395,7 @@ int step7()
 /*
 单片机向上位机输出Short_A、Disconnect_A、Short_B、Disconnect_B、Interconnect
 */
-int step8()
+void step8()
 {
 	printf_s("step 8:\n");
 	print_list_list("Short_A", Short_A);

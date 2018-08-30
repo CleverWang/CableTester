@@ -64,7 +64,7 @@ int get_input_lua(int out_pin, int in_pin, int side, char * step)
 			return -1;
 		}
 	}
-	int result = lua_tointeger(L, -1);
+	int result = (int)lua_tointeger(L, -1);
 	return result;
 }
 
@@ -78,6 +78,6 @@ int get_pin_count_lua()
 		printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
 		return -1;
 	}
-	int result = lua_tointeger(L, -1);
+	int result = (int)lua_tointeger(L, -1);
 	return result;
 }
