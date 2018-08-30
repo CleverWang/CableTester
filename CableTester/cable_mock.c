@@ -1,4 +1,5 @@
 #include "cable_mock.h"
+#include <string.h>
 
 lua_State * load_lua_file(char * filename)
 {
@@ -11,7 +12,7 @@ lua_State * load_lua_file(char * filename)
 	return L;
 }
 
-int get_input_lua(int out_pin, int in_pin, int side)
+int get_input_lua(int out_pin, int in_pin, int side, char * step)
 {
 	char *filename = "CableTools.lua";
 	lua_State *L = load_lua_file(filename);
@@ -25,10 +26,31 @@ int get_input_lua(int out_pin, int in_pin, int side)
 		lua_pushstring(L, "A");
 	else if (side == 1)
 		lua_pushstring(L, "B");
-	if (lua_pcall(L, 3, 1, 0) != 0)
+	if (!strcmp(step, "DisA"))
 	{
-		printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
-		return -1;
+		lua_pushstring(L, "DisA");
+		if (lua_pcall(L, 4, 1, 0) != 0)
+		{
+			printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
+			return -1;
+		}
+	}
+	else if (!strcmp(step, "DisB"))
+	{
+		lua_pushstring(L, "DisB");
+		if (lua_pcall(L, 4, 1, 0) != 0)
+		{
+			printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
+			return -1;
+		}
+	}
+	else
+	{
+		if (lua_pcall(L, 3, 1, 0) != 0)
+		{
+			printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
+			return -1;
+		}
 	}
 	int result = lua_tointeger(L, -1);
 	lua_close(L);

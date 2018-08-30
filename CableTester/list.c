@@ -83,4 +83,35 @@ void list_destroy(list *l)
 		free(n);
 		n = temp;
 	}
+	l->head = NULL;
+	l->size = 0;
+}
+
+int list_erase(list * l, list_node * node)
+{
+	if (node == NULL)
+		return 1;
+	if (list_empty(l))
+		return 1;
+	if (node == l->head)
+	{
+		list_node *temp = l->head;
+		l->head = temp->next;
+		free(temp);
+		l->size--;
+		return 0;
+	}
+	list_node *nd = l->head->next, *pre = l->head;
+	for (; nd != NULL; nd = nd->next)
+	{
+		if (nd == node)
+		{
+			pre->next = nd->next;
+			free(nd);
+			l->size--;
+			return 0;
+		}
+		pre = nd;
+	}
+	return 1;
 }

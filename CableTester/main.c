@@ -134,7 +134,39 @@ void test_pin_traversal()
 	//free(U);
 }
 
+void print_list(char *msg, list *l)
+{
+	printf_s("%s: ", msg);
+	for (list_node *node = l->head; node != NULL; node = node->next)
+	{
+		printf_s("%d ", ((pin *)node->data)->number);
+	}
+	printf_s("\n");
+}
+
+void print_list_list(char *msg, list *l)
+{
+	printf_s("%s: { ", msg);
+	for (list_node *node = l->head; node != NULL; node = node->next)
+	{
+		printf_s("{");
+		list *conn = (list *)node->data;
+		for (list_node *nd = conn->head; nd != NULL; nd = nd->next)
+		{
+			printf_s("%d,", ((pin *)nd->data)->number);
+		}
+		printf_s("},");
+	}
+	printf_s(" }\n");
+}
+
+int equal(const void *data1, const void *data2)
+{
+	return ((pin *)data1)->number == ((pin *)data2)->number;
+}
+
 pin *PinsA, *PinsB;
+
 list *TestA, *TestB;
 list *Short_A, *Short_B;
 list *RemoveA;
@@ -144,6 +176,7 @@ list *Temp;
 
 int init()
 {
+	printf_s("initializing...\n\n");
 	TestA = (list *)malloc(sizeof(list));
 	TestB = (list *)malloc(sizeof(list));
 	Short_A = (list *)malloc(sizeof(list));
@@ -155,11 +188,22 @@ int init()
 	Temp = (list *)malloc(sizeof(list));
 	if (TestA == NULL || TestB == NULL || Short_A == NULL || Short_B == NULL || RemoveA == NULL || Disconnect_A == NULL || Disconnect_B == NULL || Interconnect == NULL || Temp == NULL)
 		return -1;
+	list_init(TestA);
+	list_init(TestB);
+	list_init(Short_A);
+	list_init(Short_B);
+	list_init(RemoveA);
+	list_init(Disconnect_A);
+	list_init(Disconnect_B);
+	list_init(Interconnect);
+	list_init(Temp);
+	STEP = "";
 	return 0;
 }
 
 int step1()
 {
+	printf_s("step 1:\n");
 	int pin_cnt = get_pin_count_lua();
 	PinsA = (pin *)malloc(sizeof(pin) * pin_cnt);
 	PinsB = (pin *)malloc(sizeof(pin) * pin_cnt);
@@ -172,11 +216,15 @@ int step1()
 		list_push_back(TestA, &PinsA[i]);
 		list_push_back(TestB, &PinsB[i]);
 	}
+	print_list("TestA", TestA);
+	print_list("TestB", TestB);
+	printf_s("\n");
 	return 0;
 }
 
 int step2()
 {
+	printf_s("step 2:\n");
 	CURRENT_SIDE = SIDE_A;
 	pin_traversal(TestA, Short_A, Temp);
 	list_destroy(Temp);
@@ -187,17 +235,102 @@ int step2()
 			continue;
 		for (list_node *nd = conn->head->next; nd != NULL; nd = nd->next)
 		{
-			// TODO：移除TestA中的相应针脚
-
 			list_push_back(RemoveA, nd->data);
+			list_erase(TestA, list_find(TestA, nd->data, equal));
 		}
 	}
+	print_list_list("Short_A", Short_A);
+	print_list("TestA", TestA);
+	print_list("RemoveA", RemoveA);
+	printf_s("\n");
+	return 0;
+}
+
+int step3()
+{
+	printf_s("step 3:\n");
+	CURRENT_SIDE = SIDE_B;
+	pin_traversal(TestB, Short_B, Temp);
+	list_destroy(Temp);
+	for (list_node *node = Short_B->head; node != NULL; node = node->next)
+	{
+		list *conn = (list *)node->data;
+		if (list_size(conn) == 1)
+			continue;
+		for (list_node *nd = conn->head->next; nd != NULL; nd = nd->next)
+		{
+			list_erase(TestB, list_find(TestB, nd->data, equal));
+		}
+	}
+	print_list_list("Short_B", Short_B);
+	print_list("TestB", TestB);
+	printf_s("\n");
+	return 0;
+}
+
+int step4()
+{
+	printf_s("step 4:\n");
+	STEP = "DisA";
+	CURRENT_SIDE = SIDE_A;
+	pin_traversal(TestA, Temp, Disconnect_A);
+	list_destroy(Temp);
+	for (list_node *node = Disconnect_A->head; node != NULL; node = node->next)
+	{
+		list_erase(TestA, list_find(TestA, node->data, equal));
+	}
+	print_list("Disconnect_A", Disconnect_A);
+	print_list("TestA", TestA);
+	printf_s("\n");
+	return 0;
+}
+
+int step5()
+{
+	printf_s("step 5:\n");
+	STEP = "DisB";
+	CURRENT_SIDE = SIDE_B;
+	pin_traversal(TestB, Temp, Disconnect_B);
+	list_destroy(Temp);
+	for (list_node *node = Disconnect_B->head; node != NULL; node = node->next)
+	{
+		list_erase(TestB, list_find(TestB, node->data, equal));
+	}
+	print_list("Disconnect_B", Disconnect_B);
+	print_list("TestB", TestB);
+	printf_s("\n");
+	return 0;
+}
+
+int step6()
+{
+	printf_s("step 6:\n");
+	CURRENT_SIDE = SIDE_A;
+	for (list_node *node = RemoveA->head; node != NULL; node = node->next)
+	{
+		set_output((pin *)node->data);
+	}
+	print_list("disconnect wire jumper", RemoveA);
+	for (list_node *node = RemoveA->head; node != NULL; node = node->next)
+	{
+		stop_output((pin *)node->data);
+	}
+	printf_s("\n");
+	return 0;
 }
 
 int main(int argc, char **argv)
 {
 	test_list_and_set();
 	test_pin_traversal();
+
+	init();
+	step1();
+	step2();
+	step3();
+	step4();
+	step5();
+	step6();
 
 	return 0;
 }

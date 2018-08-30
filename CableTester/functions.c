@@ -3,21 +3,21 @@
 int set_output(pin *p)
 {
 	OUTPUT_PIN = p;
-	printf_s("pin %d starts output.\n", OUTPUT_PIN->number);
+	// printf_s("pin %d starts output.\n", OUTPUT_PIN->number);
 	return 0;
 }
 
 int stop_output(pin * p)
 {
 	OUTPUT_PIN = NULL;
-	printf_s("pin %d stops output.\n\n", p->number);
+	// printf_s("pin %d stops output.\n\n", p->number);
 	return 0;
 }
 
 int get_input(pin *p)
 {
-	int res = get_input_lua(OUTPUT_PIN->number, p->number, CURRENT_SIDE);
-	printf_s("pin %d get input: %d\n", p->number, res);
+	int res = get_input_lua(OUTPUT_PIN->number, p->number, CURRENT_SIDE, STEP);
+	// printf_s("pin %d get input: %d\n", p->number, res);
 	return res == 1;
 }
 
@@ -52,7 +52,7 @@ int pin_traversal(list *T, list *C, list *U)
 			}
 		}
 		stop_output((pin *)node->data); // 停止输出
-		if (!set_empty(conn)) // 不为空，说明有其他针脚与输出模式的针脚连通
+		if (!list_empty(conn)) // 不为空，说明有其他针脚与输出模式的针脚连通
 		{
 			connected_flags[idx] = 1;
 			list_push_front(conn, node->data);

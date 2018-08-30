@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "list.h"
-#include "set.h"
 #include "pin.h"
 #include "cable_mock.h"
 #include "functions.h"
@@ -22,5 +21,8 @@ int CURRENT_SIDE;
 
 // 当前处于输出模式的针脚
 pin *OUTPUT_PIN;
+
+// 当前步骤
+char *STEP;
 
 #endif // !GLOBAL_H

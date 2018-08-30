@@ -31,10 +31,13 @@ int list_push_front(list *l, void *data);
 int list_push_back(list *l, void *data);
 
 // 在链表中查找
-list_node* list_find(list *l, void *data, int(*cmp)(const void *, const void *));
+list_node* list_find(list *l, void *data, int(*equal)(const void *, const void *));
 
 // 销毁链表中的所有list_node，但是list需要手动释放
 void list_destroy(list *l);
+
+// 移除链表中的指定节点
+int list_erase(list *l, list_node *node);
 
 #endif // !LIST_H
 

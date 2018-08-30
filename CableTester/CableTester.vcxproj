@@ -151,14 +151,12 @@
     <ClInclude Include="cable_mock.h" />
     <ClInclude Include="list.h" />
     <ClInclude Include="pin.h" />
-    <ClInclude Include="set.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="functions.c" />
     <ClCompile Include="cable_mock.c" />
     <ClCompile Include="list.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="set.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Cable.lua" />
