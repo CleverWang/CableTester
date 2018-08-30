@@ -87,6 +87,19 @@ void list_destroy(list *l)
 	l->size = 0;
 }
 
+void list_list_destroy(list * ll)
+{
+	if (list_empty(ll))
+		return;
+	for (list_node *node = ll->head; node != NULL; node = node->next)
+	{
+		list *l = (list *)node->data;
+		list_destroy(l);
+		free(l);
+	}
+	list_destroy(ll);
+}
+
 int list_erase(list * l, list_node * node)
 {
 	if (node == NULL)
@@ -114,4 +127,19 @@ int list_erase(list * l, list_node * node)
 		pre = nd;
 	}
 	return 1;
+}
+
+void * list_at(list * l, int idx)
+{
+	if (idx < 0 || idx >= list_size(l))
+	{
+		printf_s("bad list index!\n");
+		return NULL;
+	}
+	list_node *node = l->head;
+	for (int i = 0; i < idx; i++)
+	{
+		node = node->next;
+	}
+	return node->data;
 }

@@ -4,13 +4,8 @@
 //{
 //	return *(int *)data1 == *(int *)data2;
 //}
-//
-//int cmp(const void *data1, const void *data2)
-//{
-//	return *(int *)data1 < *(int *)data2;
-//}
 
-void test_list_and_set()
+void test_list()
 {
 	/*list *l = (list *)malloc(sizeof(list));
 	list_init(l);
@@ -31,38 +26,7 @@ void test_list_and_set()
 	printf_s("\nfind: %d\n", *(int *)list_find(l, &data[1], equal)->data);
 	list_destroy(l);
 	free(l);
-
-	set *s = (set *)malloc(sizeof(set));
-	set_init(s);
-	printf_s("\nset size: %d\n", set_size(s));
-	printf_s("set empty: %d\n", set_empty(s));
-	for (int i = 0; i < 5; i++)
-		set_insert(s, &data[i], equal, cmp);
-	printf_s("after inserted!!!\n");
-	printf_s("set size: %d\n", set_size(s));
-	printf_s("set empty: %d\n", set_empty(s));
-	set_node *n = s->head;
-	while (n)
-	{
-		printf_s("%d ", *(int *)n->data);
-		n = n->next;
-	}
-	printf_s("\nfind: %d\n", *(int *)set_find(s, &data[1], equal)->data);
-	set_destroy(s);
-	free(s);*/
-
-	/*int *test = (int *)malloc(sizeof(int) * 5);
-	for (int i = 0; i < 5; i++)
-		test[i] = i;
-	for (int i = 0; i < 5; i++)
-	{
-		printf_s("%d ", test[i]);
-	}*/
-
-	/*int res = get_input_lua(3, 6, 0);
-	printf_s("result: %d\n", res);
-	res = get_input_lua(7, 8, 1);
-	printf_s("result: %d", res);*/
+	*/
 }
 
 void test_pin_traversal()
@@ -177,6 +141,7 @@ list *Temp;
 int init()
 {
 	printf_s("initializing...\n\n");
+
 	TestA = (list *)malloc(sizeof(list));
 	TestB = (list *)malloc(sizeof(list));
 	Short_A = (list *)malloc(sizeof(list));
@@ -186,8 +151,10 @@ int init()
 	Disconnect_B = (list *)malloc(sizeof(list));
 	Interconnect = (list *)malloc(sizeof(list));
 	Temp = (list *)malloc(sizeof(list));
-	if (TestA == NULL || TestB == NULL || Short_A == NULL || Short_B == NULL || RemoveA == NULL || Disconnect_A == NULL || Disconnect_B == NULL || Interconnect == NULL || Temp == NULL)
+	if (TestA == NULL || TestB == NULL || Short_A == NULL || Short_B == NULL || RemoveA == NULL 
+		|| Disconnect_A == NULL || Disconnect_B == NULL || Interconnect == NULL || Temp == NULL)
 		return -1;
+
 	list_init(TestA);
 	list_init(TestB);
 	list_init(Short_A);
@@ -197,13 +164,16 @@ int init()
 	list_init(Disconnect_B);
 	list_init(Interconnect);
 	list_init(Temp);
+
 	STEP = "";
+
 	return 0;
 }
 
 int step1()
 {
 	printf_s("step 1:\n");
+
 	int pin_cnt = get_pin_count_lua();
 	PinsA = (pin *)malloc(sizeof(pin) * pin_cnt);
 	PinsB = (pin *)malloc(sizeof(pin) * pin_cnt);
@@ -216,6 +186,7 @@ int step1()
 		list_push_back(TestA, &PinsA[i]);
 		list_push_back(TestB, &PinsB[i]);
 	}
+
 	print_list("TestA", TestA);
 	print_list("TestB", TestB);
 	printf_s("\n");
@@ -225,6 +196,7 @@ int step1()
 int step2()
 {
 	printf_s("step 2:\n");
+
 	CURRENT_SIDE = SIDE_A;
 	pin_traversal(TestA, Short_A, Temp);
 	list_destroy(Temp);
@@ -239,6 +211,7 @@ int step2()
 			list_erase(TestA, list_find(TestA, nd->data, equal));
 		}
 	}
+
 	print_list_list("Short_A", Short_A);
 	print_list("TestA", TestA);
 	print_list("RemoveA", RemoveA);
@@ -249,6 +222,7 @@ int step2()
 int step3()
 {
 	printf_s("step 3:\n");
+
 	CURRENT_SIDE = SIDE_B;
 	pin_traversal(TestB, Short_B, Temp);
 	list_destroy(Temp);
@@ -262,6 +236,7 @@ int step3()
 			list_erase(TestB, list_find(TestB, nd->data, equal));
 		}
 	}
+
 	print_list_list("Short_B", Short_B);
 	print_list("TestB", TestB);
 	printf_s("\n");
@@ -271,6 +246,7 @@ int step3()
 int step4()
 {
 	printf_s("step 4:\n");
+
 	STEP = "DisA";
 	CURRENT_SIDE = SIDE_A;
 	pin_traversal(TestA, Temp, Disconnect_A);
@@ -279,6 +255,7 @@ int step4()
 	{
 		list_erase(TestA, list_find(TestA, node->data, equal));
 	}
+
 	print_list("Disconnect_A", Disconnect_A);
 	print_list("TestA", TestA);
 	printf_s("\n");
@@ -288,6 +265,7 @@ int step4()
 int step5()
 {
 	printf_s("step 5:\n");
+
 	STEP = "DisB";
 	CURRENT_SIDE = SIDE_B;
 	pin_traversal(TestB, Temp, Disconnect_B);
@@ -296,6 +274,7 @@ int step5()
 	{
 		list_erase(TestB, list_find(TestB, node->data, equal));
 	}
+
 	print_list("Disconnect_B", Disconnect_B);
 	print_list("TestB", TestB);
 	printf_s("\n");
@@ -305,24 +284,110 @@ int step5()
 int step6()
 {
 	printf_s("step 6:\n");
+
 	CURRENT_SIDE = SIDE_A;
 	for (list_node *node = RemoveA->head; node != NULL; node = node->next)
 	{
 		set_output((pin *)node->data);
 	}
+
 	print_list("disconnect wire jumper", RemoveA);
+
 	for (list_node *node = RemoveA->head; node != NULL; node = node->next)
 	{
 		stop_output((pin *)node->data);
 	}
+
 	printf_s("\n");
 	return 0;
 }
 
+int step7()
+{
+	printf_s("step 7:\n");
+
+	STEP = "Inter";
+	CURRENT_SIDE = SIDE_B;
+	int *Cnt = (int *)malloc(sizeof(int) * list_size(TestB));
+	if (Cnt == NULL)
+		return -1;
+	memset(Cnt, 0, sizeof(int) * list_size(TestB));
+	int index = 0;
+	for (list_node *node = TestB->head; node != NULL; node = node->next, index++)
+	{
+		set_output((pin *)node->data);
+		for (list_node *nd = TestB->head; nd != NULL; nd = nd->next)
+		{
+			if (nd == node)
+				continue;
+			if (get_input((pin *)nd->data))
+				Cnt[index]++;
+		}
+	}
+
+	printf_s("Cnt: ");
+	for (int i = 0; i < list_size(TestB); i++)
+	{
+		printf_s("%d ", Cnt[i]);
+	}
+	printf_s("\n");
+
+	index = 0;
+	for (list_node *node = TestB->head; node != NULL; node = node->next, index++)
+	{
+		list *inter = (list *)malloc(sizeof(list));
+		if (inter == NULL)
+			return -1;
+		list_init(inter);
+		list_push_back(inter, node->data);
+		list_push_back(inter, list_at(TestA, Cnt[index]));
+		list_push_back(Interconnect, inter);
+	}
+	free(Cnt);
+
+	print_list_list("Interconnect", Interconnect);
+	printf_s("\n");
+	return 0;
+}
+
+int step8()
+{
+	printf_s("step 8:\n");
+	print_list_list("Short_A", Short_A);
+	print_list("Disconnect_A", Disconnect_A);
+	print_list_list("Short_B", Short_B);
+	print_list("Disconnect_B", Disconnect_B);
+	print_list_list("Interconnect", Interconnect);
+}
+
+void gc()
+{
+	free(PinsA);
+	free(PinsB);
+	list_destroy(TestA);
+	list_destroy(TestB);
+	list_list_destroy(Short_A);
+	list_list_destroy(Short_B);
+	list_destroy(RemoveA);
+	list_destroy(Disconnect_A);
+	list_destroy(Disconnect_B);
+	list_list_destroy(Interconnect);
+	list_destroy(Temp);
+	free(TestA);
+	free(TestB);
+	free(Short_A);
+	free(Short_B);
+	free(RemoveA);
+	free(Disconnect_A);
+	free(Disconnect_B);
+	free(Interconnect);
+	free(Temp);
+}
+
 int main(int argc, char **argv)
 {
-	test_list_and_set();
-	test_pin_traversal();
+	// test_list();
+	// test_pin_traversal();
 
 	init();
 	step1();
@@ -331,6 +396,10 @@ int main(int argc, char **argv)
 	step4();
 	step5();
 	step6();
+	step7();
+	step8();
+	gc();
+
 
 	return 0;
 }

@@ -44,6 +44,15 @@ int get_input_lua(int out_pin, int in_pin, int side, char * step)
 			return -1;
 		}
 	}
+	else if (!strcmp(step, "Inter"))
+	{
+		lua_pushstring(L, "Inter");
+		if (lua_pcall(L, 4, 1, 0) != 0)
+		{
+			printf_s("lua_pcall failed: %s\n", lua_tostring(L, -1));
+			return -1;
+		}
+	}
 	else
 	{
 		if (lua_pcall(L, 3, 1, 0) != 0)

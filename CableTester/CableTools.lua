@@ -116,6 +116,18 @@ function get_input(out_pin, in_pin, side, step)
 		return 0
 	end
 	
+	if step == 'Inter' then
+		local max_index = Cable[out_pin * 2][1]
+		for i = 1, max_index * 2 - 2, 2 do
+			for k, v in pairs(Cable[i]) do
+				if v == in_pin then
+					return 1
+				end
+			end
+		end
+		return 0
+	end
+	
 end
 
 function get_pin_count()
